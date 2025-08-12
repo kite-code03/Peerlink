@@ -123,13 +123,29 @@ if [ -z "$JAVACMD" ] ; then
 fi
 
 if [ ! -x "$JAVACMD" ] ; then
-  echo "Error: JAVA_HOME is not defined correctly." >&2
-  echo "  We cannot execute $JAVACMD" >&2
-  exit 1
+   if command -v java >/dev/null 2>&1; then
+    JAVA_HOME=$(dirname "$(dirname "$(readlink -f "$(which java)")")")
+    export JAVA_HOME
+    JAVACMD="$JAVA_HOME/bin/java"
+    echo "Auto-detected JAVA_HOME: $JAVA_HOME"
+  fi
+
+  if [ ! -x "$JAVACMD" ] ; then
+    echo "Error: JAVA_HOME is not defined correctly." >&2
+    echo "  We cannot execute $JAVACMD" >&2
+    exit 1
+  fi
 fi
 
 if [ -z "$JAVA_HOME" ] ; then
-  echo "Warning: JAVA_HOME environment variable is not set."
+   if command -v java >/dev/null 2>&1; then
+    JAVA_HOME=$(dirname "$(dirname "$(readlink -f "$(which java)")")")
+    export JAVA_HOME
+    echo "Detected JAVA_HOME: $JAVA_HOME"
+  else
+    echo "Error: Java is not installed" >&2
+    exit 1
+  fi
 fi
 
 # traverses directory structure from process work directory to filesystem root
